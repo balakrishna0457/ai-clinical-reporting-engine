@@ -1,0 +1,16 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test databases
+tests/test_clinical.db
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# IDE files
+.vscode/
+.idea/

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Clinical Analytics & Automated SQL Reporting Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #0f4c81;
+    --primary-dark: #0a3258;
+    --accent: #00a88f;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --muted: #64748b;
+    --danger: #dc2626;
+    --success: #16a34a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  
+  /* Header */
+  header {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+  }
+  .brand h1 { font-size: 20px; font-weight: 700; color: var(--primary); }
+  .brand p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .badge {
+    background: #e0f2fe;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid #bae6fd;
+  }
+
+  /* Query Card */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    margin-bottom: 24px;
+  }
+  .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+
+  /* Chips */
+  .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .chip {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .chip:hover {
+    background: #e2e8f0;
+    color: var(--primary);
+    border-color: #cbd5e1;
+  }
+
+  /* Input area */
+  .input-group { display: flex; gap: 12px; }
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.15s ease;
+  }
+  input[type="text"]:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.12);
+  }
+  button.btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  button.btn:hover { background: var(--primary-dark); }
+  button.btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  button.btn-outline:hover { background: #f1f5f9; }
+
+  /* SQL Preview Box */
+  .sql-box {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 16px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    overflow-x: auto;
+    margin-top: 16px;
+    position: relative;
+  }
+  .guardrail-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #14532d;
+    color: #86efac;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  /* Telemetry stats */
+  .stats-bar {
+    display: flex;
+    gap: 20px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .stats-bar strong { color: var(--text); }
+
+  /* Table */
+  .table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top: 16px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+  }
+  th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    white-space: nowrap;
+  }
+  tr:hover { background: #f8fafc; }
+  .tag-abnormal {
+    background: #fee2e2;
+    color: var(--danger);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 32px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <h1>AI Clinical Analytics & Automated SQL Reporting Engine</h1>
+      <p>Simulating Cerner Millennium EHR Data Model &bull; Oracle Health Architecture</p>
+    </div>
+    <div class="badge">Engine Status: Online &bull; Latency &lt; 5ms</div>
+  </header>
+
+  <!-- Query Console -->
+  <div class="card">
+    <h2>Natural Language Clinical Query</h2>
+    <div class="chip-group">
+      <div class="chip" onclick="setQuery('Show cardiac patients with abnormal Troponin levels and admission history')">🫀 Cardiac Troponin Alerts</div>
+      <div class="chip" onclick="setQuery('Department patient volume and average length of stay summary')">🏥 Department LOS & Volume</div>
+      <div class="chip" onclick="setQuery('List abnormal lab results with high failure rates by department')">🧪 Abnormal Lab Test Rates</div>
+      <div class="chip" onclick="setQuery('Show stat and urgent clinical orders across all departments')">⚡ Stat / Urgent Orders</div>
+    </div>
+    <div class="input-group">
+      <input type="text" id="queryInput" placeholder="Ask a clinical question (e.g., 'Find longest staying patients in Cardiology')...">
+      <button class="btn" id="runBtn" onclick="runClinicalQuery()">
+        <span>Run Query</span>
+      </button>
+    </div>
+
+    <!-- SQL Output -->
+    <div id="sqlContainer" style="display:none;">
+      <div class="sql-box">
+        <div class="guardrail-tag">🛡️ Guardrail Verified: Read-Only AST Passed</div>
+        <pre><code id="sqlCode"></code></pre>
+      </div>
+
+      <!-- Telemetry -->
+      <div class="stats-bar">
+        <span>Rows Fetched: <strong id="rowCount">0</strong></span>
+        <span>Execution Latency: <strong id="latencyMs">0.0 ms</strong></span>
+        <span>Data Model: <strong>Millennium Relational EHR</strong></span>
+        <button class="btn btn-outline" style="padding:4px 12px; font-size:12px; margin-left:auto;" onclick="exportCSV()">📥 Download CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Table -->
+  <div class="card" id="resultsCard" style="display:none;">
+    <h2>Clinical Report Output</h2>
+    <div class="table-wrapper">
+      <table id="resultsTable">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    Eliganti Bala Krishna &bull; Portfolio Project &bull; Modeled for Oracle Health / Cerner Millennium Systems
+  </footer>
+</div>
+
+<script>
+  let currentData = [];
+
+  function setQuery(text) {
+    document.getElementById("queryInput").value = text;
+    runClinicalQuery();
+  }
+
+  async function runClinicalQuery() {
+    const query = document.getElementById("queryInput").value.trim();
+    if (!query) return;
+
+    const btn = document.getElementById("runBtn");
+    btn.innerText = "Processing...";
+    btn.disabled = true;
+
+    try {
+      const response = await fetch("/api/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: query })
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        alert("Query Error: " + (result.error || "Execution failed"));
+        return;
+      }
+
+      // Display SQL
+      document.getElementById("sqlContainer").style.display = "block";
+      document.getElementById("sqlCode").innerText = result.sql;
+      document.getElementById("rowCount").innerText = result.row_count;
+      document.getElementById("latencyMs").innerText = result.latency_ms + " ms";
+
+      // Display Table
+      currentData = result.data;
+      renderTable(result.columns, result.data);
+      document.getElementById("resultsCard").style.display = "block";
+
+    } catch (e) {
+      alert("Network Error: " + e.message);
+    } finally {
+      btn.innerText = "Run Query";
+      btn.disabled = false;
+    }
+  }
+
+  function renderTable(columns, rows) {
+    const head = document.getElementById("tableHead");
+    const body = document.getElementById("tableBody");
+
+    head.innerHTML = "<tr>" + columns.map(c => `<th>${c.toUpperCase()}</th>`).join("") + "</tr>";
+
+    if (rows.length === 0) {
+      body.innerHTML = `<tr><td colspan="${columns.length}" style="text-align:center; padding:20px; color:#94a3b8;">No matching clinical records found.</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = rows.map(r => {
+      return "<tr>" + columns.map(c => {
+        let val = r[c] !== null ? r[c] : "";
+        if (c === "is_abnormal" && val === 1) {
+          return `<td><span class="tag-abnormal">ABNORMAL</span></td>`;
+        }
+        return `<td>${val}</td>`;
+      }).join("") + "</tr>";
+    }).join("");
+  }
+
+  function exportCSV() {
+    if (!currentData || currentData.length === 0) return;
+    const headers = Object.keys(currentData[0]);
+    const csvContent = [
+      headers.join(","),
+      ...currentData.map(row => headers.map(h => `"${(row[h] !== null ? row[h] : "").toString().replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", "clinical_report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  // Auto run initial query on load
+  window.onload = function() {
+    setQuery("Show cardiac patients with abnormal Troponin levels and admission history");
+  };
+</script>
+
+</body>
+</html>
